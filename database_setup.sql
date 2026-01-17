@@ -1,0 +1,157 @@
+-- ============================================================
+-- Zynalix Firestore Database Structure Reference
+-- ============================================================
+-- NOTE: This project now uses Firebase Firestore (NoSQL)
+-- This file documents the Firestore collections structure
+-- 
+-- To migrate sample data, run: node backend/scripts/migrateData.js
+-- Or manually add data through Firebase Console
+-- ============================================================
+
+-- ============================================================
+-- COLLECTION: admins
+-- ============================================================
+-- Purpose: Admin user accounts for authentication
+-- Document Structure:
+-- {
+--   username: string (unique),
+--   password: string (hashed),
+--   created_at: Timestamp
+-- }
+--
+-- Security: Read/Write only through Admin SDK
+
+-- ============================================================
+-- COLLECTION: services
+-- ============================================================
+-- Purpose: Company services offered
+-- Document Structure:
+-- {
+--   title: string (required),
+--   description: string,
+--   icon: string (e.g., 'FaCode', 'FaRobot'),
+--   created_at: Timestamp
+-- }
+--
+-- Sample Documents:
+-- {
+--   title: 'Full Stack Development',
+--   description: 'End-to-end web solutions using MERN Stack',
+--   icon: 'FaCode',
+--   created_at: Timestamp
+-- }
+-- {
+--   title: 'MERN Stack Projects',
+--   description: 'MongoDB, Express, React, Node.js applications',
+--   icon: 'FaLayerGroup',
+--   created_at: Timestamp
+-- }
+-- {
+--   title: 'UI/UX Designing',
+--   description: 'User-friendly and modern interface designs',
+--   icon: 'FaPaintBrush',
+--   created_at: Timestamp
+-- }
+-- {
+--   title: 'Graphic Designing',
+--   description: 'Creative visual content and branding',
+--   icon: 'FaPalette',
+--   created_at: Timestamp
+-- }
+-- {
+--   title: 'AI / ML Solutions',
+--   description: 'Smart AI-powered applications',
+--   icon: 'FaRobot',
+--   created_at: Timestamp
+-- }
+
+-- ============================================================
+-- COLLECTION: projects
+-- ============================================================
+-- Purpose: Completed projects showcase
+-- Document Structure:
+-- {
+--   project_name: string (required),
+--   project_type: string,
+--   client_name: string,
+--   created_at: Timestamp
+-- }
+--
+-- Sample Documents:
+-- {
+--   project_name: 'E-Commerce Platform',
+--   project_type: 'Full Stack',
+--   client_name: 'TechCorp',
+--   created_at: Timestamp
+-- }
+-- {
+--   project_name: 'AI Chatbot',
+--   project_type: 'AI/ML',
+--   client_name: 'StartupXYZ',
+--   created_at: Timestamp
+-- }
+-- {
+--   project_name: 'Portfolio Website',
+--   project_type: 'UI/UX',
+--   client_name: 'Freelancer',
+--   created_at: Timestamp
+-- }
+
+-- ============================================================
+-- COLLECTION: events
+-- ============================================================
+-- Purpose: Upcoming events, hackathons, and workshops
+-- Document Structure:
+-- {
+--   event_name: string,
+--   event_date: Date/Timestamp,
+--   description: string,
+--   created_at: Timestamp
+-- }
+--
+-- Sample Documents:
+-- {
+--   event_name: 'Tech Hackathon 2024',
+--   event_date: Date('2024-06-15'),
+--   description: 'Join us for an exciting 48-hour hackathon',
+--   created_at: Timestamp
+-- }
+-- {
+--   event_name: 'Web Dev Workshop',
+--   event_date: Date('2024-07-20'),
+--   description: 'Learn MERN stack from scratch',
+--   created_at: Timestamp
+-- }
+-- {
+--   event_name: 'Startup Meetup',
+--   event_date: Date('2024-08-10'),
+--   description: 'Network with fellow entrepreneurs',
+--   created_at: Timestamp
+-- }
+
+-- ============================================================
+-- COLLECTION: contacts
+-- ============================================================
+-- Purpose: Contact form submissions
+-- Document Structure:
+-- {
+--   name: string,
+--   email: string,
+--   phone: string (optional),
+--   message: string,
+--   created_at: Timestamp
+-- }
+--
+-- Security: Public can create, but read/update/delete via Admin SDK only
+
+-- ============================================================
+-- SETUP INSTRUCTIONS
+-- ============================================================
+-- 1. Create a Firebase project at https://console.firebase.google.com
+-- 2. Enable Firestore Database in Firebase Console
+-- 3. Set up Firebase Admin SDK (see FIREBASE_SETUP.md)
+-- 4. Run migration script: node backend/scripts/migrateData.js
+-- 5. Configure Firestore Security Rules (see FIREBASE_SETUP.md)
+--
+-- For detailed setup instructions, refer to: FIREBASE_SETUP.md
+-- ============================================================
