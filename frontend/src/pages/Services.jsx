@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { FaCode, FaRobot, FaPaintBrush, FaPalette, FaLayerGroup } from 'react-icons/fa';
+//import { FaCode, FaRobot, FaPaintBrush, FaPalette, FaLayerGroup } from 'react-icons/fa';
 import API_BASE_URL from '../config/api';
 
-const iconMap = {
-  'FaCode': <FaCode />,
-  'FaRobot': <FaRobot />,
-  'FaPaintBrush': <FaPaintBrush />,
-  'FaPalette': <FaPalette />,
-  'FaLayerGroup': <FaLayerGroup />
-};
+// const iconMap = {
+//   'FaCode': <FaCode />,
+//   'FaRobot': <FaRobot />,
+//   'FaPaintBrush': <FaPaintBrush />,
+//   'FaPalette': <FaPalette />,
+//   'FaLayerGroup': <FaLayerGroup />
+// };
 
 const defaultServices = [
   { id: 1, title: 'Full Stack Development', description: 'End-to-end web solutions using MERN Stack', icon: 'FaCode' },
