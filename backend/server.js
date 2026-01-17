@@ -7,7 +7,6 @@ const app = express();
 // CORS configuration - allow requests from Firebase Hosting and localhost
 app.use(cors({
   origin: [
-    'https://zynalixx-18854.web.app',
     'https://zynalixx-22367.web.app',
     'http://localhost:3000',
     'http://localhost:5173',
