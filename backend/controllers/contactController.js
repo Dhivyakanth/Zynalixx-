@@ -5,7 +5,9 @@ const nodemailer = require('nodemailer');
 let transporter = null;
 if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
   transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // true for 465, false for other ports
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASSWORD
@@ -30,6 +32,8 @@ exports.getContacts = async (req, res) => {
 
 exports.addContact = async (req, res) => {
   try {
+    console.log('Received contact form submission:', req.body);
+    
     const contactData = {
       ...req.body,
       created_at: new Date()
@@ -40,38 +44,45 @@ exports.addContact = async (req, res) => {
       ...contactData
     };
     
-    // Send email notification (only if transporter is configured)
+    console.log('Contact data saved successfully with ID:', docRef.id);
+    
+    // Send email notification asynchronously (only if transporter is configured)
     if (transporter && process.env.EMAIL_TO) {
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: process.env.EMAIL_TO,
-        replyTo: req.body.email,
-        subject: `New Contact Message from ${req.body.name}`,
-        html: `
-          <h2>New Contact Form Submission</h2>
-          <p><strong>Name:</strong> ${req.body.name}</p>
-          <p><strong>Email:</strong> ${req.body.email}</p>
-          <p><strong>Phone:</strong> ${req.body.phone || 'Not provided'}</p>
-          <p><strong>Message:</strong></p>
-          <p>${req.body.message}</p>
-          <hr>
-          <p><em>Reply directly to this email to respond to ${req.body.name}</em></p>
-        `
-      };
+      console.log('Attempting to send email notification...');
+      
+      // Send email in the background without waiting for it
+      (async () => {
+        try {
+          const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: process.env.EMAIL_TO,
+            replyTo: req.body.email,
+            subject: `New Contact Message from ${req.body.name}`,
+            html: `
+              <h2>New Contact Form Submission</h2>
+              <p><strong>Name:</strong> ${req.body.name}</p>
+              <p><strong>Email:</strong> ${req.body.email}</p>
+              <p><strong>Phone:</strong> ${req.body.phone || 'Not provided'}</p>
+              <p><strong>Message:</strong></p>
+              <p>${req.body.message}</p>
+              <hr>
+              <p><em>Reply directly to this email to respond to ${req.body.name}</em></p>
+            `
+          };
 
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.log('Email error:', error.message);
-        } else {
-          console.log('Email sent:', info.response);
+          const info = await transporter.sendMail(mailOptions);
+          console.log('Email sent successfully:', info.response);
+        } catch (emailError) {
+          console.error('Email sending failed:', emailError.message);
         }
-      });
+      })();
     } else {
       console.log('Email notification skipped: Email service not configured');
     }
 
     res.json(contact);
   } catch (error) {
+    console.error('Error saving contact:', error.message);
     res.status(500).json({ error: error.message });
   }
 };
