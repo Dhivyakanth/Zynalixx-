@@ -6,12 +6,16 @@ let transporter = null;
 if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
   transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // true for 465, false for other ports
+    port: 465,
+    secure: true, // true for 465, false for other ports
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASSWORD
-    }
+    },
+    // Additional options to handle connection issues
+    connectionTimeout: 60000, // 60 seconds
+    greetingTimeout: 30000,   // 30 seconds
+    socketTimeout: 60000      // 60 seconds
   });
 } else {
   console.log('Email notification disabled: EMAIL_USER and/or EMAIL_PASSWORD not set in .env');
@@ -53,6 +57,10 @@ exports.addContact = async (req, res) => {
       // Send email in the background without waiting for it
       (async () => {
         try {
+          // Verify transporter connection first
+          await transporter.verify();
+          console.log('Email transporter verified successfully');
+          
           const mailOptions = {
             from: process.env.EMAIL_USER,
             to: process.env.EMAIL_TO,
@@ -74,6 +82,14 @@ exports.addContact = async (req, res) => {
           console.log('Email sent successfully:', info.response);
         } catch (emailError) {
           console.error('Email sending failed:', emailError.message);
+          if (emailError.code === 'EAUTH') {
+            console.error('Authentication error: Please check your EMAIL_USER and EMAIL_PASSWORD in .env file');
+            console.error('Make sure you are using an App Password, not your regular Gmail password');
+          } else if (emailError.code === 'ETIMEDOUT' || emailError.code === 'ESOCKET') {
+            console.error('Connection timeout: Gmail might be blocking less secure apps or the connection');
+          } else {
+            console.error('Other email error:', emailError.code);
+          }
         }
       })();
     } else {
