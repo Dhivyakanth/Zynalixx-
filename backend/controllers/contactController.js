@@ -1,25 +1,5 @@
 const Contact = require('../models/Contact');
-const nodemailer = require('nodemailer');
-
-// Email transporter - only create if credentials are provided
-let transporter = null;
-if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
-  transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // true for 465, false for other ports
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD
-    },
-    // Additional options to handle connection issues
-    connectionTimeout: 60000, // 60 seconds
-    greetingTimeout: 30000,   // 30 seconds
-    socketTimeout: 60000      // 60 seconds
-  });
-} else {
-  console.log('Email notification disabled: EMAIL_USER and/or EMAIL_PASSWORD not set in .env');
-}
+const { sendContactEmail } = require('../utils/emailService');
 
 exports.getContacts = async (req, res) => {
   try {
@@ -50,50 +30,25 @@ exports.addContact = async (req, res) => {
     
     console.log('Contact data saved successfully with ID:', docRef.id);
     
-    // Send email notification asynchronously (only if transporter is configured)
-    if (transporter && process.env.EMAIL_TO) {
-      console.log('Attempting to send email notification...');
+    // Send email notification asynchronously (only if Resend is configured)
+    if (process.env.RESEND_API_KEY && process.env.EMAIL_FROM) {
+      console.log('Attempting to send email notification via Resend...');
       
       // Send email in the background without waiting for it
       (async () => {
         try {
-          // Verify transporter connection first
-          await transporter.verify();
-          console.log('Email transporter verified successfully');
-          
-          const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: process.env.EMAIL_TO,
-            replyTo: req.body.email,
-            subject: `New Contact Message from ${req.body.name}`,
-            html: `
-              <h2>New Contact Form Submission</h2>
-              <p><strong>Name:</strong> ${req.body.name}</p>
-              <p><strong>Email:</strong> ${req.body.email}</p>
-              <p><strong>Phone:</strong> ${req.body.phone || 'Not provided'}</p>
-              <p><strong>Message:</strong></p>
-              <p>${req.body.message}</p>
-              <hr>
-              <p><em>Reply directly to this email to respond to ${req.body.name}</em></p>
-            `
-          };
-
-          const info = await transporter.sendMail(mailOptions);
-          console.log('Email sent successfully:', info.response);
+          await sendContactEmail({
+            name: req.body.name,
+            email: req.body.email,
+            phone: req.body.phone,
+            message: req.body.message
+          });
         } catch (emailError) {
           console.error('Email sending failed:', emailError.message);
-          if (emailError.code === 'EAUTH') {
-            console.error('Authentication error: Please check your EMAIL_USER and EMAIL_PASSWORD in .env file');
-            console.error('Make sure you are using an App Password, not your regular Gmail password');
-          } else if (emailError.code === 'ETIMEDOUT' || emailError.code === 'ESOCKET') {
-            console.error('Connection timeout: Gmail might be blocking less secure apps or the connection');
-          } else {
-            console.error('Other email error:', emailError.code);
-          }
         }
       })();
     } else {
-      console.log('Email notification skipped: Email service not configured');
+      console.log('Email notification skipped: Resend service not configured');
     }
 
     res.json(contact);
