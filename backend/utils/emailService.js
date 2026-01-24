@@ -10,22 +10,12 @@ async function sendContactEmail({ name, email, phone, message }) {
     throw new Error('Resend is not properly configured. Please set RESEND_API_KEY and EMAIL_FROM in environment variables.');
   }
 
-  // Determine recipient emails - can be a single email or comma-separated list
-  let toEmails = process.env.EMAIL_TO ? process.env.EMAIL_TO.split(',').map(email => email.trim()) : [];
-  
-  // Add an additional email if specified in environment variables
-  if (process.env.ADDITIONAL_EMAIL) {
-    const additionalEmails = process.env.ADDITIONAL_EMAIL.split(',').map(email => email.trim());
-    // Filter out any duplicate emails and empty strings
-    const uniqueAdditionalEmails = additionalEmails.filter(email => email && !toEmails.includes(email));
-    toEmails = [...toEmails, ...uniqueAdditionalEmails];
-  }
-  
-  // Add a default fallback email if no recipients are configured
-  if (toEmails.length === 0) {
-    toEmails = ['dhivyakanth20@gmail.com']; // Default fallback
-    console.log('Using fallback email for notifications');
-  }
+  // Use only the primary email from environment variable
+    let toEmails = process.env.EMAIL_TO ? process.env.EMAIL_TO.split(',').map(email => email.trim()) : ['dhivyakanth20@gmail.com'];
+    
+    // Remove the additional email functionality to simplify
+    // Only use the primary email recipient
+    console.log(`Sending email notification to: ${toEmails.join(', ')}`);
 
   try {
     const emailResponse = await resend.emails.send({
